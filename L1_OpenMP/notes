@@ -1,0 +1,20 @@
+PART 1:
+-- original makefile: 10650133us
+-- Code creates an GRB array, where every 1/3 of its height
+
+PART 2:
+-> These flags are for optimization and offer different levels of peformance improvement.
+-> Some of these optimizations rely on undefined behaviour, and when exposed to a code that has not been fully tested, can introduce bugs. Also -Ofast enables optimizations that are not valid for all standard compliant programs, so extra care must be taken.
+-> Execution times with flags:
+---- with -O flag: 6262940us
+---- with -O2 flag: 6383179us
+---- with -O3 flag: 805382us
+---- with -Ofast flag: 810291us
+-> COMPARISON (Original vs -Ofast):
+---- ORIGINAL: 10650133us
+---- OPTIMIZ.:   810291us
+   -92.39% over the non optimized code
+-> (-Ofast) enables all -O3 optimizations as well as another ones that aren't IEEE compliant such as -ffast-math (which changes x=x*x*x*x; for x*=x;x*=x), -fno-rounding-math (uses default rounding mode) and -fallow-store-data-races (the name says it all) among others.
+
+PART 3:
+
