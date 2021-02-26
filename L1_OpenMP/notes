@@ -17,4 +17,21 @@ PART 2:
 -> (-Ofast) enables all -O3 optimizations as well as another ones that aren't IEEE compliant such as -ffast-math (which changes x=x*x*x*x; for x*=x;x*=x), -fno-rounding-math (uses default rounding mode) and -fallow-store-data-races (the name says it all) among others.
 
 PART 3:
+-> The pixels are stored in an array, which in memory are saved next to each other. The original convertGRB2RGBA access first with the 'Y' coordinate. This means that it is accessing the array every Y items, skipping elements that are close in memory and not being optimizied.
+-- EXAMPLE (WIDTH=2):
+----  access: a[0] -- SKIPS a[1] -- access a[2] -- SKIPS a[3] -- and so on
+-> By moving the 'Y' coordinate to the outer loop, we'll be accessing the elements of the array consecutevely without skipping anyone.
+-- FOR  100 iterations the time is:  808609us (speed increased in -0.2%)
+-- FOR 1000 iterations the time is: 7966568us.
 
+PART 4:
+-> The CPU does not access memory one byte at a time, instead accesses memory in 2^n sized chunks of memory. The reason for this is performance, accessing misaligned data will supose extra CPU operations regarding byte shifting and combining so that the data can be retrieved.
+-> In this case 'uchar3' has 3 chars (1 byte each, 3 bytes total). Since its not aligned with any power of 2, the performance of the function is slowed down.
+-> Execution times with align(4) on uchar3:
+--- 1000 iterations: 1689520us
+---  100 iterations:  175422us
+-> According to the compiler docs, the aligned attribute will set a minimum byte alignment for the variable. By adding this attribute, the compiler will add a padding to the uchar3 structure so that it is 4-byte-aligned. In this case, its most likely that it will add one byte at the end of the uchar3 structure.
+-> As expected, the CPU time is lower compared with the misaligned code. This is because the CPU can directly get the 4 bytes of data, instead of having to shift them to get 3 bytes.
+
+PART 5:
+ 
