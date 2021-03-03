@@ -63,7 +63,8 @@ void convertGRB2RGBA_2(uchar3* grb, uchar4* rgba, int width, int height) {
 }
 
 void convertGRB2RGBA_3(uchar3* grb, uchar4* rgba, int width, int height) {
-    for (int y=0; y<height; ++y) {
+    #pragma omp parallel for
+	for (int y=0; y<height; ++y) {
         for (int x=0; x<width; ++x) {
             rgba[width * y + x].x = grb[width * y + x].y;
             rgba[width * y + x].y = grb[width * y + x].x;
