@@ -6,6 +6,7 @@
 #define HEIGHT 2160
 
 #define EXPERIMENT_ITERATIONS 100
+#define EXPERIMENTS 10
 
 typedef unsigned char uchar;
 
@@ -94,14 +95,31 @@ int main() {
     h_rgba = (uchar4*)malloc(sizeof(uchar4)*WIDTH*HEIGHT);
 
     auto t1 = std::chrono::high_resolution_clock::now();
-    for (int i=0; i<EXPERIMENT_ITERATIONS; ++i) {    
-	convertGRB2RGBA_3(h_grb, h_rgba, WIDTH, HEIGHT);
-    }
-    auto t2 = std::chrono::high_resolution_clock::now();
-
-    auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+	
+	float duration = 0.0;
+	
+	#pragma omp parallel
+	{
+	#pragma omp critical
+	{
+		std::cout << "Thread nº " << omp_get_thread_num() << std::endl;
+	}
+	for(int j=0; j<EXPERIMENTS; ++j) {	
+	
+		#pragma omp for
+		for (int i=0; i<EXPERIMENT_ITERATIONS; ++i) {    
+			convertGRB2RGBA_2(h_grb, h_rgba, WIDTH, HEIGHT);
+		}
+		
+		auto t2 = std::chrono::high_resolution_clock::now();
+		duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+	}
+	}
+	
+	
+    
     std::cout << "convertGRB2RGBA time for " << EXPERIMENT_ITERATIONS \
-    << " iterations = "<< duration << "us" << std::endl;
+    << " iterations = "<< duration/EXPERIMENTS << "us" << std::endl;
 
     bool ok = checkResults(h_rgba, h_grb, WIDTH*HEIGHT);
 
