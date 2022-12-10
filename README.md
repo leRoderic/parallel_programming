@@ -14,7 +14,7 @@
 
 ---
 
-## LP: (Enter presentation theme)
+## LP: 
 - Dates: 19/2 thru 28/5
 - Delivery: **28/5 xx.xxh (TBA)**
 
